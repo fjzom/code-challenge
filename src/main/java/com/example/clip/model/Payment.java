@@ -38,4 +38,14 @@ public class Payment {
     @Column(name = "user_id")
     private String userId;
 
+    @Column(name = "status", columnDefinition="varchar(255) default 'NEW'")
+    private String status;
+
+    @Column(name = "disbursement", columnDefinition="Decimal(19,2) default 0.00")
+    private BigDecimal disbursement;
+
+    @ManyToOne
+    @JoinColumn(name="user_id", insertable =false, updatable =false)
+    private User user;
+
 }
