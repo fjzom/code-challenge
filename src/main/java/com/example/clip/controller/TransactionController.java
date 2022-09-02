@@ -52,7 +52,7 @@ public class TransactionController {
             return  paymentRepository.findAll();
     }
 
-    @RequestMapping(value = "/disbursement", method = RequestMethod.GET)
+    @RequestMapping(value = "/disbursement", method = RequestMethod.GET) 
     public Set<String>  disbursement() {
         List<Payment> response = paymentRepository.findAllByStatus("NEW");
 
@@ -65,6 +65,7 @@ public class TransactionController {
         log.info("Get disbursement list successfully");
         return userDisbursementLst;
     }
+    
     @RequestMapping(value = "/report", method = RequestMethod.GET)
     public List<Report>  report() {
 
