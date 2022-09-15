@@ -6,6 +6,8 @@ import javax.persistence.PersistenceException;
 import com.example.clip.model.Payment;
 import com.example.clip.model.Report;
 import com.example.clip.request.PaymentRequest;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
+@AllArgsConstructor
+@NoArgsConstructor
 @RestController
 @RequestMapping("/api/clip")
 public class TransactionController {
@@ -67,7 +71,7 @@ public class TransactionController {
     }
     
     @RequestMapping(value = "/report", method = RequestMethod.GET)
-    public List<Report>  report() {
+    public List<Report>  report() throws Exception {
 
         List<Payment> response = paymentRepository.findAll();
         List<Report> userReportLst = generateReportLst(response);
@@ -76,7 +80,7 @@ public class TransactionController {
         return userReportLst;
     }
 
-    private List<Report> generateReportLst(List<Payment> response) {
+    private List<Report> generateReportLst(List<Payment> response) throws Exception {
         List<Report> reportLst  = new ArrayList<>();
         Set<String> userIdLst =  response.stream().map(Payment::getUserId).collect(Collectors.toSet());
         Report obj;
@@ -116,22 +120,22 @@ public class TransactionController {
         return paymentsSumListByUserId.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private static String obtainUserNameByUserId(List<Payment> response, String userId) {
+    private static String obtainUserNameByUserId(List<Payment> response, String userId) throws Exception {
         return response.stream()
                 .filter(r -> r.getUserId().equalsIgnoreCase(userId))
                 .map(n -> n.getUser().getName())
-                .findFirst().orElseThrow();
+                .findFirst().orElseThrow(Exception::new);
     }
 
 
     private static Set<String> getUserDisbursementLst(List<Payment> response) {
         return response.stream()
-                .map(r -> "User_Id: " + r.getUserId() + ", Disbursement: " + r.getDisbursement())
+                .map(r -> "User_Id: " + r.getUserId() + ", Disbursement: " + r.getDisbursement().setScale(2,BigDecimal.ROUND_HALF_DOWN))
                 .collect(Collectors.toCollection(TreeSet::new));
     }
 
     private static BigDecimal calculateDisbursement(Payment r) {
-        return r.getAmount().subtract(r.getAmount().multiply(BigDecimal.valueOf(.035))).setScale(2);
+        return r.getAmount().subtract(r.getAmount().multiply(BigDecimal.valueOf(.035))).setScale(BigDecimal.ROUND_HALF_DOWN);
     }
 
 
